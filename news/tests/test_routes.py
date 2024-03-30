@@ -14,17 +14,18 @@ class TestRoutes(TestCase):
     def setUpTestData(cls):
         cls.news = News.objects.create(title='Заголовок', text='Текст')
 
-    ''' Тест, проверяющий доступность главной страницы проекта'''
-    def test_home_page(self):
-        # Вместо прямого указания адреса 
-        # получаем его при помощи функции reverse().
-        url = reverse('news:home')
-        response = self.client.get(url)
-        # Проверяем, что код ответа равен статусу OK (он же 200).
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+    def test_pages_availability(self):
+        urls = (
+            ('news:home', None),
+            ('news:detail', (self.news.id,)),
+            ('users:login', None),
+            ('users:logout', None),
+            ('users:signup', None),
+        )
+        for name, args in urls:
+            with self.subTest(name=name):
+                url = reverse(name, args=args)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    '''Тест, проверяющий доступность страницы отдельной новости'''
-    def test_detail_page(self):
-        url = reverse('news:detail', args=(self.news.id,))
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+
