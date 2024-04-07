@@ -15,7 +15,7 @@ def author(django_user_model):
 # Используем встроенную фикстуру модели пользователей
 # для создания пользователя - Не автор.
 def not_author(django_user_model):
-    return django_user_model.objects.create(username='Не автор')
+    return django_user_model.objects.create(username='Не Автор')
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def news_id_for_args(news):
 @pytest.fixture
 # Создаём объект комментарий.
 def comment(author, news):
-    comment = Comment.objects.create(  # Создаём объект новости.
+    comment = Comment.objects.create(  # Создаём объект комментария.
         news=news,
         author=author,
         text='Текст комментария'
@@ -73,6 +73,4 @@ def comment(author, news):
 @pytest.fixture
 # Фикстура запрашивает другую фикстуру создания комментария новости.
 def comment_id_for_args(comment):
-    # И возвращает кортеж, который содержит slug заметки.
-    # На то, что это кортеж, указывает запятая в конце выражения.
     return (comment.id,)

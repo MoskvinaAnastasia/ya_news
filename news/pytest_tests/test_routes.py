@@ -1,6 +1,7 @@
 import pytest
-from http import HTTPStatus
 from django.urls import reverse
+from http import HTTPStatus
+from pytest_django.asserts import assertRedirects
 
 
 @pytest.mark.django_db
@@ -48,3 +49,23 @@ def test_availability_for_comment_edit_and_delete(
     url = reverse(name, args=args)
     response = parametrized_client.get(url)
     assert response.status_code == expected_status
+
+
+@pytest.mark.parametrize(
+    'name, args',
+    (
+        ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
+    ),
+)
+def test_redirect_for_anonymous_client(client, name, args):
+    # Устанавливаем адрес страницы переадресации
+    login_url = reverse('users:login')
+    # Формируем адрес страницы обращения.
+    url = reverse(name, args=args)
+    # Устанавливаем адрес на которой должен попасть пользователь после авторизации.
+    expected_url = f'{login_url}?next={url}'
+    # Загружаем страницу.
+    response = client.get(url)
+    # Проверяем переадресацию.
+    assertRedirects(response, expected_url)
