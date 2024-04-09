@@ -1,6 +1,6 @@
 import pytest
 from django.test.client import Client
-
+from django.urls import reverse
 from news.models import News, Comment
 
 
@@ -74,3 +74,9 @@ def comment(author, news):
 # Фикстура запрашивает другую фикстуру создания комментария новости.
 def comment_id_for_args(comment):
     return (comment.id,)
+
+
+@pytest.fixture
+# Адрес страницы новости.
+def detail_url(news):
+    return reverse('news:detail', args=(news.id,))
