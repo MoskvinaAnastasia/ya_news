@@ -1,6 +1,10 @@
 import pytest
+from datetime import datetime, timedelta
+
+from django.conf import settings
 from django.test.client import Client
 from django.urls import reverse
+
 from news.models import News, Comment
 
 
@@ -80,3 +84,38 @@ def comment_id_for_args(comment):
 # Адрес страницы новости.
 def detail_url(news):
     return reverse('news:detail', args=(news.id,))
+
+
+@pytest.fixture
+# Создаём список новостей.
+def list_news():
+    today = datetime.today()
+    all_news = [
+        News(
+            title=f'Новая новость {index}',
+            text='Ляляля.',
+            # Для каждой новости уменьшаем дату на index дней от today,
+            # где index - счётчик цикла.
+            date=today - timedelta(days=index)
+        )
+        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
+    ]
+    News.objects.bulk_create(all_news)
+
+
+@pytest.fixture
+# Создаём список комментариев.
+def list_comment(author, news):
+    today = datetime.today()
+    all_comments = [
+        Comment(
+            news=news,
+            author=author,
+            text='Текст комментария',
+            # Для каждой новости уменьшаем дату на index дней от today,
+            # где index - счётчик цикла.
+            created=today - timedelta(days=index)
+        )
+        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
+    ]
+    Comment.objects.bulk_create(all_comments)
